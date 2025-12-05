@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>THIS IS THE CORRECT INDEX FILE</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #202020;
+      color: white;
+      font-family: system-ui, sans-serif;
+    }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+</script>
+</head>
+<body>
+  <h1>Threejs Test Environment</h1>
+  <p>Click to move around using WASD. Press Esc to stop movement</p>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
