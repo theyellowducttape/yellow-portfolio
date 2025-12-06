@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>THIS IS THE CORRECT INDEX FILE</title>
+  
+  <title>Test Scene HAK</title>
+  
   <style>
     html, body {
       margin: 0;
@@ -13,6 +15,7 @@
       font-family: system-ui, sans-serif;
     }
   </style>
+
   <script type="importmap">
   {
     "imports": {
@@ -21,10 +24,105 @@
     }
   }
 </script>
+
+<style>
+  #question-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10;
+  }
+
+  #question-overlay.hidden {
+    display: none;
+  }
+
+  .question-box {
+    background: #111827;
+    color: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    width: min(500px, 90vw);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(156, 163, 175, 0.4);
+  }
+
+  .question-box h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  #question-answer {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(75, 85, 99, 0.9);
+    background: #020617;
+    color: #e5e7eb;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+  }
+
+  #question-answer:focus {
+    outline: none;
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 1px #38bdf8;
+  }
+
+  .question-actions {
+    margin-top: 0.75rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .question-actions button {
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  #question-submit {
+    background: #38bdf8;
+    color: #0b1120;
+    font-weight: 600;
+  }
+
+  #question-cancel {
+    background: transparent;
+    color: #e5e7eb;
+    border: 1px solid rgba(148, 163, 184, 0.7);
+  }
+</style>
+
 </head>
 <body>
   <h1>Threejs Test Environment</h1>
   <p>Click to move around using WASD. Press Esc to stop movement</p>
+
+  <div id="question-overlay" class="hidden">
+  <div class="question-box">
+    <h2 id="question-text">
+      What is one thought or belief you are currently reflecting on?
+    </h2>
+    <textarea
+      id="question-answer"
+      placeholder="Type your reflection here..."
+    ></textarea>
+    <div class="question-actions">
+      <!--<button id="question-cancel" type="button">Cancel</button>-->
+      <button id="question-submit" type="button">Submit</button>
+    </div>
+  </div>
+  </div>
 
   <script type="module" src="./main.js"></script>
 </body>
