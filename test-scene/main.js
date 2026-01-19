@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+
 
 // ============== QUESTION UI DOM REFERENCES ==============
 const questionOverlay = document.getElementById('question-overlay');
@@ -40,9 +42,21 @@ console.log("Three.js imported via Import Map");
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x202020);
 
+// =============== HDR LIGHTING ===============
+//const rgbeLoader = new RGBELoader();
+
+//rgbeLoader.load(
+  //'./assets/trekker_monument_1k.hdr',
+  //(hdr) => {
+  //  hdr.mapping = THREE.EquirectangularReflectionMapping;
+  //  scene.environment = hdr;
+    //scene.background = new THREE.Color(0xf5f5f5); // keep background simple
+  //}
+//);
+
 // =============== CAMERA ===============
 const camera = new THREE.PerspectiveCamera(35,window.innerWidth / window.innerHeight,0.1,1000);
-camera.position.set(0, 2, 0);
+camera.position.set(0, 4, 20);
 
 // ==================== PLAYER CONTROLS (WASD) ====================
 let controls;
@@ -84,7 +98,7 @@ document.addEventListener('keyup', (event) => {
 const velocity = new THREE.Vector3();
 const direction = new THREE.Vector3();
 
-const WALK_SPEED = 3; // adjust for speed preference
+const WALK_SPEED = 4; // adjust for speed preference
 
 // =============== RENDERER ===============
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -92,10 +106,11 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 document.body.appendChild(renderer.domElement);
 
-// =============== LIGHT ===============
-const light = new THREE.DirectionalLight(0xffffff, 2);
-light.position.set(0, 1, 0);
-scene.add(light);
+// =============== LIGHT RENDERING ===============
+renderer.physicallyCorrectLights = true;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
 
 // =============== TEST CUBE ===============
 //const cube = new THREE.Mesh(
@@ -108,15 +123,14 @@ scene.add(light);
 // =============== LOAD GLTF ENVIRONMENT ===============
 const loader = new GLTFLoader();
 
-loader.load(
-  './assets/testscene.gltf',
-  (gltf) => {
+loader.load('./assets/POCroom3.glb',(gltf) =>
+  {
     console.log('GLTF loaded:', gltf);
 
     const env = gltf.scene;
 
     // Optional: adjust scale if your scene is huge or tiny
-    env.scale.set(1, 1, 1);
+    //env.scale.set(1, 1, 1);
 
     // Center it if needed
     env.position.set(0, 0, 0);
