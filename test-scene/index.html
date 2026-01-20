@@ -3,18 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   
-  <title>Test Scene HAK</title>
-  
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #202020;
-      color: white;
-      font-family: system-ui, sans-serif;
-    }
-  </style>
+  <title>Thinking Generator</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./uistyles.css" />
 
   <script type="importmap">
   {
@@ -24,102 +19,56 @@
     }
   }
 </script>
-
-<style>
-  #question-overlay {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 10;
-  }
-
-  #question-overlay.hidden {
-    display: none;
-  }
-
-  .question-box {
-    background: #111827;
-    color: #f9fafb;
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    width: min(500px, 90vw);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(156, 163, 175, 0.4);
-  }
-
-  .question-box h2 {
-    margin: 0 0 0.75rem;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-
-  #question-answer {
-    width: 100%;
-    min-height: 120px;
-    resize: vertical;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    border: 1px solid rgba(75, 85, 99, 0.9);
-    background: #020617;
-    color: #e5e7eb;
-    font-size: 0.95rem;
-    box-sizing: border-box;
-  }
-
-  #question-answer:focus {
-    outline: none;
-    border-color: #38bdf8;
-    box-shadow: 0 0 0 1px #38bdf8;
-  }
-
-  .question-actions {
-    margin-top: 0.75rem;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-
-  .question-actions button {
-    padding: 0.45rem 0.9rem;
-    border-radius: 999px;
-    border: none;
-    font-size: 0.9rem;
-    cursor: pointer;
-  }
-
-  #question-submit {
-    background: #38bdf8;
-    color: #0b1120;
-    font-weight: 600;
-  }
-
-  #question-cancel {
-    background: transparent;
-    color: #e5e7eb;
-    border: 1px solid rgba(148, 163, 184, 0.7);
-  }
-</style>
-
 </head>
-<body>
-  <h1>Threejs Test Environment</h1>
-  <p>Click to move around using WASD. Press Esc to stop movement</p>
 
-  <div id="question-overlay" class="hidden">
+<body>
+
+<!-- Splash / Loader -->
+<div id="loader-overlay">
+  <h1>Thinking Generator</h1>
+  <img src="./assets/logo.gif" alt="Loading…" />
+  <p>Click to move around using your Keyboard Arrow Keys. Press Esc to view cursor</p>
+</div>
+
+<!-- Navigation Hint UI -->
+<div id="nav-hint">
+  <div class="nav-keys">
+    <span class="key">↑</span>
+    <span class="key">←</span>
+    <span class="key">↓</span>
+    <span class="key">→</span>
+  </div>
+  <div class="nav-text">
+    Use arrow keys to move<br />
+    Click to look around · Esc to stop
+  </div>
+</div>
+
+<!-- Fade to black overlay -->
+<div id="fade-overlay"></div>
+
+<!-- Video overlay -->
+<div id="video-overlay">
+  <video
+    id="reflection-video"
+    src="./assets/R3Q1_seq.mp4"
+    preload="auto"
+    playsinline
+    loop
+  ></video>
+</div>
+
+<!-- question overlay -->
+  <div id="question-overlay">
   <div class="question-box">
-    <h2 id="question-text">
-      What is one thought or belief you are currently reflecting on?
-    </h2>
+    <h2 id="question-text">Why do I believe this?</h2>
     <textarea
       id="question-answer"
-      placeholder="Type your reflection here..."
-    ></textarea>
+      placeholder="Type your reflection here..." rows="4">
+  </textarea>
     <div class="question-actions">
       <!--<button id="question-cancel" type="button">Cancel</button>-->
-      <button id="question-submit" type="button">Submit</button>
+      <button id="question-submit" type="button">Affirm</button>
     </div>
   </div>
   </div>
