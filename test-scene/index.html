@@ -11,6 +11,8 @@
 
   <link rel="stylesheet" href="./uistyles.css" />
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <script type="importmap">
   {
     "imports": {
@@ -30,6 +32,29 @@
   <p>Click to move around using your Keyboard Arrow Keys. Press Esc to view cursor</p>
 </div>
 
+<!-- home screen UI -->
+<div id="home-screen" class="hidden">
+
+  <div class="home-box">
+
+    <h1>Thinking Generator</h1>
+
+    <div class="home-field">
+      <label>Main Topic</label>
+      <input id="topic-input" type="text" placeholder="Enter your topic..." />
+    </div>
+
+    <div class="home-field">
+      <label>What I believe about this topic</label>
+      <textarea id="belief-input" placeholder="Type your belief..."></textarea>
+    </div>
+
+    <button id="home-begin">Begin</button>
+
+  </div>
+
+</div>
+
 <!-- Navigation Hint UI -->
 <div id="nav-hint">
   <div class="nav-keys">
@@ -42,6 +67,11 @@
     Use arrow keys to move<br />
     Click to look around · Esc to stop
   </div>
+</div>
+
+<!-- Reflection Trigger -->
+<div id="door-prompt" class="hidden">
+  Press <strong>ENTER</strong> to unlock
 </div>
 
 <!-- Fade to black overlay -->
@@ -61,7 +91,7 @@
 <!-- question overlay -->
   <div id="question-overlay">
   <div class="question-box">
-    <h2 id="question-text">Why do I believe this?</h2>
+    <h2 id="question-text">Rayaan Sheik believes this</h2>
     <textarea
       id="question-answer"
       placeholder="Type your reflection here..." rows="4">
@@ -74,5 +104,24 @@
   </div>
 
   <script type="module" src="./main.js"></script>
+
+<!-- reflection log -->
+  <div id="reflection-log">
+  <h3>Your Reflections</h3>
+  <div id="reflection-log-entries"></div>
+</div>
+
+<!-- end screen -->
+<div id="end-screen" class="hidden">
+  <h1>Reflection Complete</h1>
+
+  <div id="end-log"></div>
+
+  <div class="end-actions">
+    <button id="download-pdf-btn">Download PDF</button>
+    <button id="new-session-btn">Start New Session</button>
+  </div>
+</div>
+
 </body>
 </html>
