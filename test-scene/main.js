@@ -3,20 +3,122 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
+// ============== GLOBAL APP DATA ==============
+window.appData = {
+  topic: "",
+  initialBelief: "",
+  answers: []
+};
+
+// ============== HOME SCREEN REFERENCES ==============
+const homeScreen = document.getElementById('home-screen');
+const topicInput = document.getElementById('topic-input');
+const beliefInput = document.getElementById('belief-input');
+const homeBeginBtn = document.getElementById('home-begin');
+const reflectionLogEntries = document.getElementById('reflection-log-entries');
+
+const endScreen = document.getElementById('end-screen');
+const endLog = document.getElementById('end-log');
+
+const downloadPdfBtn = document.getElementById('download-pdf-btn');
+const newSessionBtn = document.getElementById('new-session-btn');
+
+// ============== QUESTION DOOR PROMPT ==============
+const doorPrompt = document.getElementById('door-prompt');
+
+let canUnlockDoor = false;
+
+const roomDoorMap = {
+  1: "door-1",
+  2: "door-2",
+  3: "door-3"
+};
+
+// ============== PLAYER POSITION ==============
+const roomSpawns = {
+  1: new THREE.Vector3(0, 5, 30),
+  2: new THREE.Vector3(0, 5, 30),
+  3: new THREE.Vector3(0, 5, 30)
+};
 
 // ============== QUESTION UI DOM REFERENCES ==============
 const questionOverlay = document.getElementById('question-overlay');
 const questionTextEl = document.getElementById('question-text');
 const questionAnswerEl = document.getElementById('question-answer');
 const questionSubmitBtn = document.getElementById('question-submit');
-const questionCancelBtn = document.getElementById('question-cancel');
+//const questionCancelBtn = document.getElementById('question-cancel');
+
+const doorQuestions = {
+  "door-1": [
+    "How does this impact how I think and how I behave?",
+    "Can I put my feelings aside and just think about the field?"
+  ],
+
+  "door-2": [
+    "Why do I believe this?",
+    "Am I making assumptions?",
+    "Am I biased?",
+    "Can I put my bias aside and be open-minded to new ideas?"
+  ],
+
+  "door-3": [
+    "Are these my own ideas or am I influenced by other people?",
+    "How do I know I am right?",
+    "Is it based on emotion or fact?"
+  ]
+
+};
+
+let activeDoorId = null;
+let currentQuestionIndex = 0;
+
+document.addEventListener('keydown', (e) => {
+
+  if (e.code !== 'Enter') return;
+  if (!canUnlockDoor) return;
+  if (reflectionState !== 'idle') return;
+
+  const doorId = roomDoorMap[currentRoom];
+  startReflectionSequence(doorId);
+
+});
+
+// ============== ROOM LOADERS ==============
+
+let currentRoom = 1;
+let currentEnvironment = null;
+
+// ============== HOME BEGIN BUTTON ==============
+homeBeginBtn.addEventListener('click', () => {
+
+  const topic = topicInput.value.trim();
+  const belief = beliefInput.value.trim();
+
+  if (!topic || !belief) {
+    alert("Please fill both fields.");
+    return;
+  }
+
+  window.appData.topic = topic;
+  window.appData.initialBelief = belief;
+
+  addReflectionLog("What I believe about this topic?", belief);
+
+  homeScreen.classList.add('hidden');
+
+  currentRoom = 1;
+  loadEnvironment(1);
+
+  controls.lock();
+
+});
 
 // ============== CINEMATIC OVERLAYS ==============
 const fadeOverlay = document.getElementById('fade-overlay');
 const videoOverlay = document.getElementById('video-overlay');
 const reflectionVideo = document.getElementById('reflection-video');
 
-// ============== TEXTAREA AUTO-RESIZE ==============
+// ============== TEXT AREA AUTO-RESIZE ==============
 questionAnswerEl.addEventListener('input', autoResizeTextarea);
 
 function autoResizeTextarea() {
@@ -28,12 +130,12 @@ function autoResizeTextarea() {
 
 let sceneLoaded = false;
 let minLoadTimePassed = false;
-let pebblesTarget = null;
 
 let isQuestionOpen = false;
 let currentQuestionId = null; // later you can use this to track which room/question was asked
 let questTrigger1 = null;   // define global trigger reference
 let reflectionState = 'idle';
+let isSubmittingAnswer = false;
 
 // ============== LOADER CONDITIONS ==============
 setTimeout(() => {
@@ -44,68 +146,128 @@ setTimeout(() => {
 const loaderOverlay = document.getElementById('loader-overlay');
 
 function tryHideLoader() {
-  if (sceneLoaded && minLoadTimePassed) {
+
+  if (minLoadTimePassed) {
+
     loaderOverlay.style.opacity = '0';
     loaderOverlay.style.transition = 'opacity 0.6s ease';
 
     setTimeout(() => {
       loaderOverlay.style.display = 'none';
+
+      // SHOW HOME SCREEN
+      homeScreen.classList.remove('hidden');
+
     }, 600);
   }
+
 }
 
-// ============== RETURN TO ENVIRONMENT ==============
-function returnToEnvironmentFacingPebbles() {
-  if (!controls || !pebblesTarget) return;
+// ============== LOADER CONDITIONS ==============
+function addReflectionLog(question, answer) {
 
-  // Fully unlock first
-  controls.unlock();
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
 
-  // Reset camera completely
-  camera.rotation.set(0, 0, 0);
+  entry.innerHTML = `
+    <div class="log-question">${question}</div>
+    <div class="log-answer">${answer}</div>
+  `;
 
-  const player = controls.getObject();
-  const playerPos = player.position;
-  const targetPos = pebblesTarget.getWorldPosition(new THREE.Vector3());
+  reflectionLogEntries.appendChild(entry);
 
-  const dir = new THREE.Vector3(
-    targetPos.x - playerPos.x,
-    0,
-    targetPos.z - playerPos.z
-  ).normalize();
-
-  player.rotation.set(0, Math.atan2(dir.x, dir.z), 0);
-
-  // Lock on next frame
-  requestAnimationFrame(() => {
-    controls.lock();
-  });
+  // Auto scroll to bottom
+  reflectionLogEntries.scrollTop = reflectionLogEntries.scrollHeight;
 }
+
+// ============== QUESTION SUBMIT ==============
 
 questionSubmitBtn.addEventListener('click', async () => {
-  if (reflectionState !== 'running') return;
 
-  reflectionState = 'completed';
+  if (isSubmittingAnswer) return;
+  isSubmittingAnswer = true;
 
-  // 1. Hide question UI
+  const answer = questionAnswerEl.value.trim();
+  if (!answer) {
+  isSubmittingAnswer = false;
+  return;
+}
+
+  // ========== HOME QUESTION ==========
+  if (currentQuestionId === "initial-belief") {
+
+    window.appData.initialBelief = answer;
+    console.log("Initial belief stored:", answer);
+
+    closeQuestion();
+    controls.lock();
+    return;
+  }
+
+  // ========== DOOR QUESTIONS ==========
+  window.appData.answers.push({
+    door: activeDoorId,
+    question: doorQuestions[activeDoorId][currentQuestionIndex],
+    answer
+  });
+
+  addReflectionLog(
+  doorQuestions[activeDoorId][currentQuestionIndex],
+  answer
+  );
+
+  currentQuestionIndex++;
+
+  // ---- MORE QUESTIONS REMAIN ----
+  if (currentQuestionIndex < doorQuestions[activeDoorId].length) {
+
+    openQuestion(
+      doorQuestions[activeDoorId][currentQuestionIndex],
+      activeDoorId
+    );
+
+    isSubmittingAnswer = false;
+    return; 
+
+  }
+
+  // ---- FINISHED ALL QUESTIONS FOR THIS DOOR ----
   closeQuestion();
 
-  // 2. Fade out video & overlay
   videoOverlay.classList.remove('active');
   reflectionVideo.pause();
+
+  reflectionState = 'idle';
+
+  console.log(`${activeDoorId} completed`);
+
+  // ---- ROOM TRANSITION ----
+  await wait(800);
+  fadeOverlay.classList.add('active');
+
+  await wait(1200);
+
+if (currentRoom < 3) {
+
+  currentRoom++;
+  loadEnvironment(currentRoom);
+
+} else {
+
+  // Final room completed
+  fadeOverlay.classList.add('active');
+
+  await wait(1500);
+
+  showEndScreen();
+
+}
+
   fadeOverlay.classList.remove('active');
 
-  // 3. Let visuals settle
-  await wait(150);
+  isSubmittingAnswer = false;
 
-  // 4. Clean return to environment
-  returnToEnvironmentFacingPebbles();
 });
-
-//questionCancelBtn.addEventListener('click', () => {
-//  closeQuestion();
-//});
-
 
 console.log("Three.js imported via Import Map");
 
@@ -124,9 +286,13 @@ controls = new PointerLockControls(camera, document.body);
 scene.add(controls.getObject());
 
 // click to lock mouse look
-document.addEventListener('click', () => {
-  controls.lock();
-});
+function isAnyUIOpen() {
+  return (
+    !homeScreen.classList.contains('hidden') ||
+    isQuestionOpen ||
+    !endScreen.classList.contains('hidden')
+  );
+}
 
 // movement state
 let moveForward = false;
@@ -202,72 +368,70 @@ rgbeLoader.load('./assets/reflection.hdr', (hdrTexture) => {
 //scene.add(cube);
 
 // =============== LOAD GLTF ENVIRONMENT ===============
-const loader = new GLTFLoader();
+function loadEnvironment(roomNumber) {
 
-loader.load('./assets/POCroom3.glb',(gltf) =>
-  {
-    console.log('GLTF loaded:', gltf);
+  const loader = new GLTFLoader();
+
+  const roomFiles = {
+    1: './assets/Room1.glb',
+    2: './assets/Room2.glb',
+    3: './assets/Room3.glb'
+  };
+
+  const file = roomFiles[roomNumber];
+  if (!file) return;
+
+  loader.load(file, (gltf) => {
+
+    console.log(`Room ${roomNumber} loaded`);
+
+    // Reset per-room state
+    currentQuestionIndex = 0;
+    activeDoorId = null;
+    isSubmittingAnswer = false;
+    canUnlockDoor = false;
+    reflectionState = 'idle';
+    questTrigger1 = null;
+
+    // Remove previous room
+    if (currentEnvironment) {
+      scene.remove(currentEnvironment);
+    }
 
     const env = gltf.scene;
+    currentEnvironment = env;
 
-    // Optional: adjust scale if your scene is huge or tiny
-    //env.scale.set(1, 1, 1);
-
-    // Center it if needed
-    env.position.set(0, 0, 0);
+    env.position.set(0,0,0);
 
     env.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
       }
+
+      if (child.name === "questtrigger1") {
+        questTrigger1 = child;
+      }
+
     });
 
     scene.add(env);
-    sceneLoaded = true;
-    tryHideLoader();
 
-    // Question Trigger
+    // Reset player position
+controls.getObject().position.copy(roomSpawns[roomNumber]);
 
-    env.traverse((child) => {
-  if (child.isMesh && child.name === "questtrigger1") {
-    questTrigger1 = child;
-    //questTrigger1.visible = false;   // optional: hide trigger mesh
-    console.log("Found trigger object:", questTrigger1);
-  }
+// Reset rotation
+camera.rotation.set(0, 0, 0);
+controls.getObject().rotation.set(0, 0, 0);
 
-  if (child.name === 'Pebbles') {
-    pebblesTarget = child;
-    console.log('Found Pebbles target:', pebblesTarget);
-  }
+// Re-lock controls
+setTimeout(() => {
+  controls.lock();
+}, 100);
 
-  //HDR Reflection Control
- if (!child.isMesh || !child.material) return;
+  });
 
-  if (['questtrigger1'].includes(child.name)) {
-    child.material.envMapIntensity = 0.4;
-    child.material.roughness = Math.min(child.material.roughness, 0.05);
-  } else {
-    child.material.envMapIntensity = 0;
-  } 
-    child.material.needsUpdate = true;
-  
-});
-
-    console.log('Environment added to scene.');
-  },
-
-  (xhr) => {
-    if (xhr.total) {
-      console.log(`GLTF loading: ${(xhr.loaded / xhr.total * 100).toFixed(1)}%`);
-    } else {
-      console.log(`GLTF loading: ${xhr.loaded} bytes`);
-    }
-  },
-  (error) => {
-    console.error('Error loading GLTF:', error);
-  }
-);
+}
 
 // =============== RESIZE ===============
 window.addEventListener('resize', () => {
@@ -312,68 +476,199 @@ function once(element, event) {
   });
 }
 
-// Start reflection sequence
-async function startReflectionSequence(questionText, questionId) {
-  if (reflectionState !== 'running') return;
+// =============== START REFLECTION ===============
+async function startReflectionSequence(doorId) {
 
-  // 1. Fade to black (3s)
+  // HARD BLOCK
+  if (reflectionState !== 'idle') return;
+
+  reflectionState = 'running';
+  activeDoorId = doorId;
+
+  // RESET STATE FIRST (important)
+  currentQuestionIndex = 0;
+  isSubmittingAnswer = false;
+
+  doorPrompt.classList.add('hidden');
+  canUnlockDoor = false;
+
+  // 1. Fade to black
   fadeOverlay.classList.add('active');
   await wait(3000);
 
   // 2. Fade in video
   videoOverlay.classList.add('active');
   reflectionVideo.currentTime = 0;
+  reflectionVideo.loop = true;
   reflectionVideo.play();
 
-  // Wait until video is ready
   if (reflectionVideo.readyState < 3) {
     await once(reflectionVideo, 'canplay');
   }
 
-  // 3. Let video play for 3 seconds
-  await wait(3000);
+  // 3. Small pause
+  await wait(2000);
 
-  // 4. Show question UI
-  openQuestion(questionText, questionId);
+  // 4. Show FIRST question
+  openQuestion(
+    doorQuestions[doorId][0],
+    doorId
+  );
 }
-
 
 // =============== ANIMATE ===============
 function animate() {
   requestAnimationFrame(animate);
 
-if (reflectionState === 'idle' && questTrigger1) {
+if (reflectionState === 'idle' && questTrigger1 && !isQuestionOpen) {
+
   const playerPos = controls.getObject().position;
   const triggerPos = questTrigger1.getWorldPosition(new THREE.Vector3());
   const dist = playerPos.distanceTo(triggerPos);
 
   if (dist < 12.0) {
-    reflectionState = 'running';
-    startReflectionSequence(
-      "Why do I believe this?",
-      "question-1"
-    );
+
+    canUnlockDoor = true;
+    doorPrompt.classList.remove('hidden');
+
+  } else {
+
+    canUnlockDoor = false;
+    doorPrompt.classList.add('hidden');
+
   }
+
 }
 
   // ============= MOVEMENT (DISABLED WHEN UI OPEN) =============
-  if (!isQuestionOpen && controls) {
-    direction.z = Number(moveForward) - Number(moveBackward);
-    direction.x = Number(moveRight) - Number(moveLeft);
+if (!isAnyUIOpen() && controls) {
+
+  direction.set(
+    Number(moveRight) - Number(moveLeft),
+    0,
+    Number(moveForward) - Number(moveBackward)
+  );
+
+  if (direction.lengthSq() > 0) {
     direction.normalize();
 
-    const delta = 0.016; // ~60fps
+    const delta = 0.016;
 
-    if (moveForward || moveBackward) {
-      controls.moveForward(direction.z * WALK_SPEED * delta);
-    }
-    if (moveLeft || moveRight) {
-      controls.moveRight(direction.x * WALK_SPEED * delta);
-    }
+    controls.moveForward(direction.z * WALK_SPEED * delta);
+    controls.moveRight(direction.x * WALK_SPEED * delta);
   }
+
+}
 
   // ============= RENDER FRAME =============
   renderer.render(scene, camera);
 }
+
+  // ============= END SCREEN =============
+function showEndScreen() {
+
+  endLog.innerHTML = "";
+
+  // Initial belief
+  const first = document.createElement('div');
+  first.className = "end-entry";
+  first.innerHTML = `
+    <div class="end-question">What I believe about this topic?</div>
+    <div class="end-answer">${window.appData.initialBelief}</div>
+  `;
+  endLog.appendChild(first);
+
+  // Door answers
+  window.appData.answers.forEach(entry => {
+
+    const div = document.createElement('div');
+    div.className = "end-entry";
+
+    div.innerHTML = `
+      <div class="end-question">${entry.question}</div>
+      <div class="end-answer">${entry.answer}</div>
+    `;
+
+    endLog.appendChild(div);
+  });
+
+  endScreen.classList.remove('hidden');
+}
+
+function downloadSessionPDF() {
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 20;
+
+  // Title
+  doc.setFontSize(18);
+  doc.text("Thinking Generator Session", 20, y);
+  y += 12;
+
+  doc.setFontSize(12);
+  doc.text(`Topic: ${window.appData.topic}`, 20, y);
+  y += 12;
+
+  // Initial belief
+  doc.setFontSize(14);
+  doc.text("What I believe about this topic?", 20, y);
+  y += 8;
+
+  doc.setFontSize(11);
+  doc.text(window.appData.initialBelief, 20, y, { maxWidth: 170 });
+  y += 16;
+
+  // Door answers
+  window.appData.answers.forEach(entry => {
+
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+    }
+
+    doc.setFontSize(14);
+    doc.text(entry.question, 20, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.text(entry.answer, 20, y, { maxWidth: 170 });
+    y += 16;
+
+  });
+
+  doc.save("thinking-generator-session.pdf");
+}
+
+function startNewSession() {
+
+  // Reset data
+  window.appData.topic = "";
+  window.appData.initialBelief = "";
+  window.appData.answers = [];
+
+  reflectionLogEntries.innerHTML = "";
+  endLog.innerHTML = "";
+
+  // Reset state
+  currentRoom = 1;
+  reflectionState = 'idle';
+  isQuestionOpen = false;
+  currentQuestionIndex = 0;
+
+  // Hide end screen
+  endScreen.classList.add('hidden');
+
+  // Show home screen again
+  homeScreen.classList.remove('hidden');
+
+  // Clear inputs
+  topicInput.value = "";
+  beliefInput.value = "";
+}
+
+downloadPdfBtn.addEventListener('click', downloadSessionPDF);
+newSessionBtn.addEventListener('click', startNewSession);
 
 animate();
