@@ -11,10 +11,23 @@ window.appData = {
 };
 
 // ============== HOME SCREEN REFERENCES ==============
-const homeScreen = document.getElementById('home-screen');
+const loaderOverlay = document.getElementById('loader-overlay');
+const loaderState = document.getElementById('loader-state');
+const homeState = document.getElementById('home-state');
+
+const startBtn = document.getElementById('start-btn');
+const continueBtn = document.getElementById('continue-btn');
+const submitBtn = document.getElementById('submit-btn');
+
+const nameInput = document.getElementById('name-input');
 const topicInput = document.getElementById('topic-input');
-const beliefInput = document.getElementById('belief-input');
-const homeBeginBtn = document.getElementById('home-begin');
+const qstn0Input = document.getElementById('qstn0-input');
+
+const greetingText = document.getElementById('greeting-text');
+const nameStep = document.getElementById('name-step');
+const topicStep = document.getElementById('topic-step');
+const beliefStep = document.getElementById('belief-step');
+
 const reflectionLogEntries = document.getElementById('reflection-log-entries');
 
 const endScreen = document.getElementById('end-screen');
@@ -22,6 +35,7 @@ const endLog = document.getElementById('end-log');
 
 const downloadPdfBtn = document.getElementById('download-pdf-btn');
 const newSessionBtn = document.getElementById('new-session-btn');
+
 
 // ============== QUESTION DOOR PROMPT ==============
 const doorPrompt = document.getElementById('door-prompt');
@@ -74,12 +88,31 @@ let currentQuestionIndex = 0;
 
 document.addEventListener('keydown', (e) => {
 
-  if (e.code !== 'Enter') return;
-  if (!canUnlockDoor) return;
-  if (reflectionState !== 'idle') return;
+  const target = e.target;
 
-  const doorId = roomDoorMap[currentRoom];
-  startReflectionSequence(doorId);
+  // ===== ENTER FOR UI =====
+  if (e.key === 'Enter') {
+
+    if (!activeButton || activeButton.disabled) return;
+
+    // Allow Shift+Enter in textarea
+    if (target.tagName === 'TEXTAREA' && e.shiftKey) return;
+
+    if (target.classList.contains('form-input')) {
+      e.preventDefault();
+      activeButton.click();
+      return;
+    }
+  }
+
+  // ===== ENTER FOR DOOR =====
+  if (e.code === 'Enter') {
+    if (!canUnlockDoor) return;
+    if (reflectionState !== 'idle') return;
+
+    const doorId = roomDoorMap[currentRoom];
+    startReflectionSequence(doorId);
+  }
 
 });
 
@@ -88,8 +121,10 @@ document.addEventListener('keydown', (e) => {
 let currentRoom = 1;
 let currentEnvironment = null;
 
-// ============== HOME BEGIN BUTTON ==============
-homeBeginBtn.addEventListener('click', () => {
+// ============== ONBOARDING BUTTON ==============
+
+let activeButton = null;
+/*homeBeginBtn.addEventListener('click', () => {
 
   const topic = topicInput.value.trim();
   const belief = beliefInput.value.trim();
@@ -104,14 +139,15 @@ homeBeginBtn.addEventListener('click', () => {
 
   addReflectionLog("What I believe about this topic?", belief);
 
-  homeScreen.classList.add('hidden');
+  // HIDE UI
+  loaderOverlay.style.display = 'none';
 
   currentRoom = 1;
   loadEnvironment(1);
 
   controls.lock();
 
-});
+});*/
 
 // ============== CINEMATIC OVERLAYS ==============
 const fadeOverlay = document.getElementById('fade-overlay');
@@ -138,32 +174,67 @@ let reflectionState = 'idle';
 let isSubmittingAnswer = false;
 
 // ============== LOADER CONDITIONS ==============
+
 setTimeout(() => {
   minLoadTimePassed = true;
   tryHideLoader();
 }, 3000);
 
-const loaderOverlay = document.getElementById('loader-overlay');
-
 function tryHideLoader() {
 
   if (minLoadTimePassed) {
 
-    loaderOverlay.style.opacity = '0';
-    loaderOverlay.style.transition = 'opacity 0.6s ease';
+    // fade out loader state
+    loaderState.classList.remove('active');
 
     setTimeout(() => {
-      loaderOverlay.style.display = 'none';
 
-      // SHOW HOME SCREEN
-      homeScreen.classList.remove('hidden');
+      // show home UI
+      homeState.classList.add('active');
 
-    }, 600);
+      // trigger title animation
+      loaderOverlay.classList.add('home-active');
+
+      activeButton = startBtn;
+
+    }, 300);
   }
 
 }
+loaderOverlay.addEventListener('click', () => {
+  minLoadTimePassed = true;
+  tryHideLoader();
+});
 
-// ============== LOADER CONDITIONS ==============
+function startEnvironment() {
+
+  // Hide loader completely
+  loaderOverlay.style.display = 'none';
+  loaderState.classList.remove('active');
+
+  // Start 3D
+  currentRoom = 1;
+  loadEnvironment(1);
+
+  controls.lock();
+
+}
+
+function goToStep4() {
+
+  // show loader
+  loaderOverlay.style.display = 'flex';
+  //loaderOverlay.classList.remove('header-mode');
+  //loaderOverlay.classList.remove('home-active');
+  loaderState.style.display = 'flex';
+
+  // Small delay → then start environment
+  setTimeout(() => {
+    startEnvironment();
+  }, 6000);
+
+}
+
 function addReflectionLog(question, answer) {
 
   const entry = document.createElement('div');
@@ -179,6 +250,82 @@ function addReflectionLog(question, answer) {
   // Auto scroll to bottom
   reflectionLogEntries.scrollTop = reflectionLogEntries.scrollHeight;
 }
+
+// ============== ONBOARDING EVENT ==============
+nameInput.addEventListener('input', () => {
+  startBtn.disabled = nameInput.value.trim().length === 0;
+});
+
+startBtn.addEventListener('click', () => {
+  const name = nameInput.value.trim();
+  if (!name) return;
+
+  // Inject name into greeting
+  greetingText.textContent = `Hello, ${name}`;
+
+  // Hide step 1
+  nameStep.classList.add('hidden');
+  startBtn.classList.add('hidden');
+
+  // Show step 2
+  greetingText.classList.remove('hidden');
+  topicStep.classList.remove('hidden');
+  continueBtn.classList.remove('hidden');
+
+  // Move title to header
+  loaderOverlay.classList.add('header-mode');
+  activeButton = continueBtn;
+});
+
+topicInput.addEventListener('input', () => {
+  continueBtn.disabled = topicInput.value.trim().length === 0;
+});
+
+continueBtn.addEventListener('click', () => {
+  const topic = topicInput.value.trim();
+  if (!topic) return;
+
+  // Replace greeting with topic
+  greetingText.textContent = topic;
+
+  // Step 2 OUT
+  topicStep.classList.add('hidden');
+  continueBtn.classList.add('hidden');
+
+  // Step 3 IN
+  beliefStep.classList.remove('hidden');
+  submitBtn.classList.remove('hidden');
+
+  // Update active button
+  activeButton = submitBtn;
+
+});
+
+qstn0Input.addEventListener('input', () => {
+  submitBtn.disabled = qstn0Input.value.trim().length === 0;
+});
+
+submitBtn.addEventListener('click', () => {
+
+  const value = qstn0Input.value.trim();
+  if (!value) return;
+
+  window.appData.answers.push({
+    id: 'qstn-0',
+    value
+  });
+
+  greetingText.classList.add('hidden');
+  beliefStep.classList.add('hidden');
+  submitBtn.classList.add('hidden');
+
+  goToStep4();
+
+});
+
+
+
+
 
 // ============== QUESTION SUBMIT ==============
 
@@ -288,7 +435,7 @@ scene.add(controls.getObject());
 // click to lock mouse look
 function isAnyUIOpen() {
   return (
-    !homeScreen.classList.contains('hidden') ||
+    homeState.classList.contains('active') ||
     isQuestionOpen ||
     !endScreen.classList.contains('hidden')
   );
@@ -430,7 +577,9 @@ setTimeout(() => {
 }, 100);
 
   });
-
+  
+document.getElementById('nav-hint').style.display = 'flex';
+document.getElementById('reflection-log').style.display = 'flex';
 }
 
 // =============== RESIZE ===============
@@ -479,37 +628,27 @@ function once(element, event) {
 // =============== START REFLECTION ===============
 async function startReflectionSequence(doorId) {
 
-  // HARD BLOCK
-  if (reflectionState !== 'idle') return;
-
-  reflectionState = 'running';
-  activeDoorId = doorId;
-
-  // RESET STATE FIRST (important)
-  currentQuestionIndex = 0;
-  isSubmittingAnswer = false;
-
   doorPrompt.classList.add('hidden');
   canUnlockDoor = false;
 
+  reflectionState = 'running';
+  activeDoorId = doorId;
+  currentQuestionIndex = 0;
+
   // 1. Fade to black
   fadeOverlay.classList.add('active');
-  await wait(3000);
+  await wait(2000);
 
-  // 2. Fade in video
+  // 2. Start video
   videoOverlay.classList.add('active');
   reflectionVideo.currentTime = 0;
   reflectionVideo.loop = true;
   reflectionVideo.play();
 
-  if (reflectionVideo.readyState < 3) {
-    await once(reflectionVideo, 'canplay');
-  }
+  // 3. Let video breathe
+  await wait(2500);
 
-  // 3. Small pause
-  await wait(2000);
-
-  // 4. Show FIRST question
+  // 4. Show first question
   openQuestion(
     doorQuestions[doorId][0],
     doorId
@@ -665,7 +804,7 @@ function startNewSession() {
 
   // Clear inputs
   topicInput.value = "";
-  beliefInput.value = "";
+  qstn0Input.value = "";
 }
 
 downloadPdfBtn.addEventListener('click', downloadSessionPDF);
