@@ -5,9 +5,10 @@
   
   <title>Thinking Generator</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./uistyles.css" />
 
@@ -24,36 +25,66 @@
 </head>
 
 <body>
-
-<!-- Splash / Loader -->
-<div id="loader-overlay">
-  <h1>Thinking Generator</h1>
-  <img src="./assets/logo.gif" alt="Loading…" />
-  <p>Click to move around using your Keyboard Arrow Keys. Press Esc to view cursor</p>
-</div>
-
 <!-- home screen UI -->
-<div id="home-screen" class="hidden">
+<div id="loader-overlay">
 
-  <div class="home-box">
-
-    <h1>Thinking Generator</h1>
-
-    <div class="home-field">
-      <label>Main Topic</label>
-      <input id="topic-input" type="text" placeholder="Enter your topic..." />
-    </div>
-
-    <div class="home-field">
-      <label>What I believe about this topic</label>
-      <textarea id="belief-input" placeholder="Type your belief..."></textarea>
-    </div>
-
-    <button id="home-begin">Begin</button>
-
+  <!-- Background -->
+  <div class="loader-bg">
+    <img src="./assets/left-decor.svg" class="decor decor-left" />
+    <img src="./assets/right-decor.svg" class="decor decor-right" />
   </div>
 
+  <!-- Title (shared) -->
+  <h1 id="main-title">The Thinking Generator</h1>
+
+  <!-- LOADER STATE -->
+  <div id="loader-state" class="state active">
+    <img src="./assets/logo.gif" class="loader-gif" />
+  </div>
+
+  <!-- 1. WELCOME SCREEN -->
+ <div id="home-state" class="state">
+
+  <!-- STEP 1 -->
+  <div class="form-field" id="name-step">
+    <p class="home-subtext">
+    Enter a space for thinking and reflection.<br/>
+    Follow the questions and uncover how your thoughts unfold.
+  </p>
+    <label class="form-label">Let’s get to know you</label>
+    <input class="form-input" id="name-input" type="text" placeholder="Enter your name" />
+  </div>
+
+  <button id="start-btn" class="primary-btn" disabled>Get Started</button>
+
+  <!-- STEP 2 -->
+  <h2 id="greeting-text" class="header-text hidden"></h2>
+
+  <div class="form-field hidden" id="topic-step">
+    <label class="form-label">What is our topic for today?</label>
+    <textarea class="form-input" id="topic-input" placeholder="Enter topic"></textarea>
+  </div>
+
+  <button id="continue-btn" class="primary-btn hidden" disabled>Continue</button>
+
+  <!-- STEP 3 -->
+  <div class="form-field hidden" id="belief-step">
+  <label class="form-label">What do I believe about this topic?</label>
+  <textarea class="form-input" id="qstn0-input" placeholder="Write your belief"></textarea>
 </div>
+
+<button id="submit-btn" class="primary-btn hidden" disabled>Submit</button>
+
+</div>
+
+  <div><!-- Footer -->
+  <p class="loader-footer">
+    © 2026 Harbord & Khan. All rights reserved.
+  </p>
+
+</div></div>
+
+
 
 <!-- Navigation Hint UI -->
 <div id="nav-hint">
