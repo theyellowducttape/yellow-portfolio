@@ -2,157 +2,175 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  
-  <title>Thinking Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>The Thinking Generator</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
 
   <link rel="stylesheet" href="./uistyles.css" />
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script type="importmap">
-  {
-    "imports": {
-      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
     }
-  }
-</script>
+  </script>
 </head>
 
 <body>
-<!-- home screen UI -->
-<div id="loader-overlay">
 
-  <!-- Background -->
-  <div class="loader-bg">
-    <img src="./assets/left-decor.svg" class="decor decor-left" />
-    <img src="./assets/right-decor.svg" class="decor decor-right" />
+  <!-- ============================================================
+       ONBOARDING OVERLAY (loader + name / topic / belief steps)
+       ============================================================ -->
+  <div id="loader-overlay">
+
+    <div class="loader-bg">
+      <img src="./assets/left-decor.svg" class="decor decor-left" alt="" />
+      <img src="./assets/right-decor.svg" class="decor decor-right" alt="" />
+    </div>
+
+    <h1 id="main-title">The Thinking Generator</h1>
+
+    <!-- Loading state -->
+    <div id="loader-state" class="state active">
+      <img src="./assets/logo.gif" class="loader-gif" alt="Loading" />
+    </div>
+
+    <!-- Onboarding steps -->
+    <div id="home-state" class="state">
+
+      <!-- Step 1: name -->
+      <div class="form-field" id="name-step">
+        <p class="home-subtext">
+          Enter a space for thinking and reflection.<br />
+          Follow the questions and uncover how your thoughts unfold.
+        </p>
+        <label class="form-label" for="name-input">Let’s get to know you</label>
+        <input class="form-input" id="name-input" type="text" placeholder="Enter your name" />
+      </div>
+
+      <button id="start-btn" class="primary-btn" disabled>Get started</button>
+
+      <!-- Step 2: topic -->
+      <h2 id="greeting-text" class="header-text hidden"></h2>
+
+      <div class="form-field hidden" id="topic-step">
+        <label class="form-label" for="topic-input">What is our topic for today?</label>
+        <textarea class="form-input" id="topic-input" placeholder="Enter topic"></textarea>
+      </div>
+
+      <button id="continue-btn" class="primary-btn hidden" disabled>Continue</button>
+
+      <!-- Step 3: belief -->
+      <div class="form-field hidden" id="belief-step">
+        <label class="form-label" for="qstn0-input">What do I believe about this topic?</label>
+        <textarea class="form-input" id="qstn0-input" placeholder="Write your belief"></textarea>
+      </div>
+
+      <button id="submit-btn" class="primary-btn hidden" disabled>Submit</button>
+
+    </div>
+
+    <p class="loader-footer">© 2026 Harbord &amp; Khan. All rights reserved.</p>
+
   </div>
 
-  <!-- Title (shared) -->
-  <h1 id="main-title">The Thinking Generator</h1>
+  <!-- ============================================================
+       IN-WORLD HUD
+       ============================================================ -->
+  <div id="nav-hint" class="hidden">
+    <div class="nav-keys">
+      <span class="key">↑</span>
+      <span class="key">←</span>
+      <span class="key">↓</span>
+      <span class="key">→</span>
+    </div>
 
-  <!-- LOADER STATE -->
-  <div id="loader-state" class="state active">
-    <img src="./assets/logo.gif" class="loader-gif" />
-  </div>
+    <div class="nav-info">
+      <div class="nav-text">
+        Use arrow keys to move<br />
+        Click to look around · Esc to stop
+      </div>
 
-  <!-- 1. WELCOME SCREEN -->
- <div id="home-state" class="state">
-
-  <!-- STEP 1 -->
-  <div class="form-field" id="name-step">
-    <p class="home-subtext">
-    Enter a space for thinking and reflection.<br/>
-    Follow the questions and uncover how your thoughts unfold.
-  </p>
-    <label class="form-label">Let’s get to know you</label>
-    <input class="form-input" id="name-input" type="text" placeholder="Enter your name" />
-  </div>
-
-  <button id="start-btn" class="primary-btn" disabled>Get Started</button>
-
-  <!-- STEP 2 -->
-  <h2 id="greeting-text" class="header-text hidden"></h2>
-
-  <div class="form-field hidden" id="topic-step">
-    <label class="form-label">What is our topic for today?</label>
-    <textarea class="form-input" id="topic-input" placeholder="Enter topic"></textarea>
-  </div>
-
-  <button id="continue-btn" class="primary-btn hidden" disabled>Continue</button>
-
-  <!-- STEP 3 -->
-  <div class="form-field hidden" id="belief-step">
-  <label class="form-label">What do I believe about this topic?</label>
-  <textarea class="form-input" id="qstn0-input" placeholder="Write your belief"></textarea>
-</div>
-
-<button id="submit-btn" class="primary-btn hidden" disabled>Submit</button>
-
-</div>
-
-  <div><!-- Footer -->
-  <p class="loader-footer">
-    © 2026 Harbord & Khan. All rights reserved.
-  </p>
-
-</div></div>
-
-
-
-<!-- Navigation Hint UI -->
-<div id="nav-hint">
-  <div class="nav-keys">
-    <span class="key">↑</span>
-    <span class="key">←</span>
-    <span class="key">↓</span>
-    <span class="key">→</span>
-  </div>
-  <div class="nav-text">
-    Use arrow keys to move<br />
-    Click to look around · Esc to stop
-  </div>
-</div>
-
-<!-- Reflection Trigger -->
-<div id="door-prompt" class="hidden">
-  Press <strong>ENTER</strong> to unlock
-</div>
-
-<!-- Fade to black overlay -->
-<div id="fade-overlay"></div>
-
-<!-- Video overlay -->
-<div id="video-overlay">
-  <video
-    id="reflection-video"
-    src="./assets/R3Q1_seq.mp4"
-    preload="auto"
-    playsinline
-    loop
-  ></video>
-</div>
-
-<!-- question overlay -->
-  <div id="question-overlay">
-  <div class="question-box">
-    <h2 id="question-text">Rayaan Sheik believes this</h2>
-    <textarea
-      id="question-answer"
-      placeholder="Type your reflection here..." rows="4">
-  </textarea>
-    <div class="question-actions">
-      <!--<button id="question-cancel" type="button">Cancel</button>-->
-      <button id="question-submit" type="button">Affirm</button>
+      <div class="nav-audio">
+        Press <span class="key">M</span> to <span id="nav-audio-label">mute</span>
+      </div>
     </div>
   </div>
+
+  <div id="door-prompt" class="is-faded">
+    Press <strong>Enter</strong> to unlock
+  </div>
+
+  <aside id="reflection-log" class="hidden">
+    <h3>Your reflections</h3>
+    <div id="reflection-log-entries"></div>
+  </aside>
+
+  <!-- ============================================================
+       CINEMATIC OVERLAYS
+       ============================================================ -->
+  <div id="fade-overlay"></div>
+
+  <div id="video-overlay">
+    <video id="reflection-video" preload="auto" playsinline loop></video>
+  </div>
+
+  <!-- ============================================================
+       QUESTION OVERLAY
+       ============================================================ -->
+  <div id="question-overlay">
+    <div class="question-box" id="question-box">
+      <h2 id="question-text"></h2>
+      <textarea id="question-answer" rows="4" placeholder="Type your reflection here..."></textarea>
+      <div class="question-actions">
+        <button id="question-submit" type="button">Affirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       END SCREEN
+       ============================================================ -->
+  <div id="end-screen" class="hidden">
+
+    <div class="loader-bg">
+      <img src="./assets/left-decor.svg" class="decor decor-left" alt="" />
+      <img src="./assets/right-decor.svg" class="decor decor-right" alt="" />
+    </div>
+
+    <div class="end-container">
+      <h1 class="header-text is-visible">Reflection complete</h1>
+
+      <div class="end-topic-block" id="end-topic-block">
+        <p class="end-topic-label">Your topic</p>
+        <h2 class="end-topic" id="end-topic"></h2>
+      </div>
+
+      <p class="end-subtext">Here is a reflection of your thinking journey.</p>
+
+      <div class="end-card">
+        <div id="end-log"></div>
+      </div>
+
+      <div class="end-actions">
+        <button id="download-pdf-btn" class="primary-btn">Download PDF</button>
+        <button id="new-session-btn" class="secondary-btn">Start new session</button>
+      </div>
+    </div>
+
   </div>
 
   <script type="module" src="./main.js"></script>
-
-<!-- reflection log -->
-  <div id="reflection-log">
-  <h3>Your Reflections</h3>
-  <div id="reflection-log-entries"></div>
-</div>
-
-<!-- end screen -->
-<div id="end-screen" class="hidden">
-  <h1>Reflection Complete</h1>
-
-  <div id="end-log"></div>
-
-  <div class="end-actions">
-    <button id="download-pdf-btn">Download PDF</button>
-    <button id="new-session-btn">Start New Session</button>
-  </div>
-</div>
-
 </body>
 </html>

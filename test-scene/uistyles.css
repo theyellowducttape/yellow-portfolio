@@ -1,79 +1,73 @@
+/* ============================================================
+   TOKENS
+   ============================================================ */
 :root {
-
   /* Typography */
   --font-title: "Bricolage Grotesque", sans-serif;
   --font-body: "Work Sans", system-ui, sans-serif;
 
-  /* Color Tokens */
-  --color-primary: #293E6D;
-  --color-secondary: #3B4917;
-  --color-accent: #A7486E;
-  --color-surface: #F6F0DC;
+  /* Palette */
+  --color-primary: #293e6d;
+  --color-secondary: #3b4917;
+  --color-accent: #a7486e;
+  --color-surface: #f6f0dc;
 
-  /* Button */
---btn-primary-bg: var(--color-accent);
---btn-primary-text: #ffffff;
---btn-primary-hover: #933e60;
---btn-primary-active: #7c344f;
---btn-primary-disabled: #D9BBC7;
-
-/* Input */
---input-bg: rgba(255,255,255,0.6);
---input-border: rgba(167,72,110,0.4);
---input-focus: var(--color-accent);
---input-text: var(--color-primary);
---input-placeholder: rgba(0,0,0,0.4);
-
-  /* Optional useful extensions */
   --color-text-primary: var(--color-primary);
   --color-text-secondary: var(--color-secondary);
 
-  /* Transitions */
-  --transition-smooth: .6s cubic-bezier(.4, 0, .2, 1);
-  --transition-fast: .3s cubic-bezier(.4, 0, .2, 1);
+  /* Buttons */
+  --btn-primary-bg: var(--color-accent);
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #933e60;
+  --btn-primary-active: #7c344f;
+  --btn-primary-disabled: #d9bbc7;
 
-  /* Existing tokens */
-  --sidebar-background: 0 0% 98%;
-  --sidebar-foreground: 240 5.3% 26.1%;
-  --sidebar-primary: 240 5.9% 10%;
-  --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 240 4.8% 95.9%;
-  --sidebar-accent-foreground: 240 5.9% 10%;
-  --sidebar-border: 220 13% 91%;
-  --sidebar-ring: 217.2 91.2% 59.8%;
+  /* Inputs */
+  --input-bg: rgba(255, 255, 255, 0.6);
+  --input-border: rgba(167, 72, 110, 0.4);
+  --input-focus: var(--color-accent);
+  --input-text: var(--color-primary);
+  --input-placeholder: rgba(0, 0, 0, 0.4);
+
+  /* Glass surfaces (in-world UI).
+     Cream tinted so the overlays read as the same world as the home and end
+     screens. Alpha runs high because these sit over unpredictable 3D and
+     video content while carrying dark text. Lower --glass-panel for more
+     atmosphere, raise it for legibility. */
+  --glass-panel: rgba(246, 240, 220, 0.82);
+  --glass-panel-soft: rgba(246, 240, 220, 0.68);
+  --glass-border: rgba(246, 240, 220, 0.55);
+  --glass-field: rgba(255, 255, 255, 0.55);
+  --glass-divider: rgba(41, 62, 109, 0.15);
+  --glass-shadow: 0 8px 32px rgba(41, 62, 109, 0.3);
+  --glass-scrim: rgba(41, 62, 109, 0.18);
+
+  /* Motion */
+  --transition-smooth: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: var(--color-surface);
+/* ============================================================
+   BASE
+   ============================================================ */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+
+  background: var(--color-surface);
   font-family: var(--font-body);
   color: var(--color-text-primary);
-
-    }
-
-h1, h2, h3, h4 {
-  font-family: var(--font-title);
 }
 
-/* ================= HEADER TEXT ================= */
-
-.header-text {
+h1,
+h2,
+h3,
+h4 {
   font-family: var(--font-title);
-  font-size: clamp(28px, 4vw, 48px);
-  color: var(--color-primary);
-  max-width: 70vw;
-  word-wrap: break-word;
-
-  text-align: center;
-  line-height: 1.2;
-
-  margin-bottom: 32px;
-
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.6s cubic-bezier(.22, 1, .36, 1);
 }
 
 input,
@@ -82,24 +76,67 @@ button {
   font-family: var(--font-body);
 }
 
-/*Button Component*/
-.primary-btn {
+/* Utilities.
+   .hidden is the single display toggle used by JS.
+   .is-faded is an opacity-only toggle (keeps transitions alive). */
+.hidden {
+  display: none !important;
+}
+
+/* ============================================================
+   TYPE
+   ============================================================ */
+.header-text {
+  font-family: var(--font-title);
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 1.2;
+  color: var(--color-primary);
+
+  max-width: 70vw;
+  margin: 0 0 32px;
+  text-align: center;
+  overflow-wrap: break-word;
+
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s var(--ease-out-soft), transform 0.6s var(--ease-out-soft);
+}
+
+.header-text.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.home-subtext {
+  margin: 40px 0;
+  font-size: 20px;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--color-secondary);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.primary-btn,
+.secondary-btn {
   display: block;
   margin: 24px auto 0;
   padding: 12px 28px;
 
-  border-radius: 8px;
   border: none;
+  border-radius: 8px;
 
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
-
-  font-family: var(--font-body);
   font-size: 20px;
   font-weight: 500;
+  color: var(--btn-primary-text);
 
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.primary-btn {
+  background: var(--btn-primary-bg);
 }
 
 .primary-btn:hover {
@@ -116,36 +153,56 @@ button {
   cursor: not-allowed;
 }
 
-/*Input Field Component*/
+.secondary-btn {
+  background: var(--color-secondary);
+}
+
+.secondary-btn:hover {
+  filter: brightness(1.15);
+}
+
+.secondary-btn:active {
+  transform: scale(0.98);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   FORM FIELDS
+   ============================================================ */
 .form-field {
-  margin-top: 40px;
   width: min(600px, 80vw);
+  margin-top: 40px;
   text-align: center;
 }
 
 .form-label {
   display: block;
-  color: var(--color-secondary);
-  text-align: center;
   margin-bottom: 16px;
+
   font-size: 32px;
   font-weight: 500;
+  text-align: center;
+  color: var(--color-secondary);
 }
 
 .form-input {
   width: 100%;
   padding: 14px;
+  box-sizing: border-box;
 
-  border-radius: 8px;
   border: 1px solid var(--input-border);
+  border-radius: 8px;
 
   background: var(--input-bg);
   color: var(--input-text);
-
   font-size: 20px;
-  outline: none;
 
-  transition: all 0.2s cubic-bezier(.22, 1, .36, 1);
+  outline: none;
+  transition: border-color 0.2s var(--ease-out-soft), box-shadow 0.2s var(--ease-out-soft);
 }
 
 .form-input::placeholder {
@@ -154,7 +211,7 @@ button {
 
 .form-input:focus {
   border-color: var(--input-focus);
-  box-shadow: 0 0 0 2px rgba(167,72,110,0.2);
+  box-shadow: 0 0 0 2px rgba(167, 72, 110, 0.2);
 }
 
 textarea.form-input {
@@ -162,25 +219,24 @@ textarea.form-input {
   resize: none;
 }
 
-.home-subtext {
-  margin-top: 40px;
-  margin-bottom: 40px;
-  font-size: 20px;
-  text-align: center;
-  color: var(--color-secondary);
-  line-height: 1.25
-  ;
-}
-
-.hidden {
-  display: none;
-}
-
-/* ================= LOADER OVERLAY ================= */
-.state {
-  position: center;
+/* ============================================================
+   ONBOARDING OVERLAY
+   ============================================================ */
+#loader-overlay {
+  position: fixed;
   inset: 0;
+  z-index: 100;
 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -196,45 +252,33 @@ textarea.form-input {
   pointer-events: auto;
 }
 
-#loader-overlay {
-  position: absolute;
-  inset: 0;
-  background: var(--color-surface);
-  z-index: 100;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 152px;
-
-  overflow: hidden;
-}
-
 #main-title {
-  position: center;
-
   font-size: clamp(48px, 6vw, 72px);
   font-weight: 600;
   color: var(--color-primary);
-
-  transition: all 0.9s cubic-bezier(.22, 1, .36, 1);
+  transition: all 0.9s var(--ease-out-soft);
 }
 
+/* Title shrinks to a header once onboarding advances.
+   It goes out of flow here, so .header-mode below has to reserve its space. */
 .header-mode #main-title {
   position: absolute;
   top: 24px;
   left: 0;
   right: 0;
 
-  text-align: center;
-
-  font-size: clamp(20px, 2vw, 28px);
   margin: 0;
+  font-size: clamp(20px, 2vw, 28px);
+  text-align: center;
+  transform: none;
 }
 
-.header-mode #home-state {
-  position: absolute;
+/* The pinned title occupies no flow space, so pad it out and centre
+   the step content in what is left. */
+#loader-overlay.header-mode {
+  justify-content: center;
+  padding-top: 104px;
+  box-sizing: border-box;
 }
 
 .loader-gif {
@@ -246,6 +290,10 @@ textarea.form-input {
   width: clamp(80px, 15vw, 500px);
   height: auto;
   margin: 40px 0;
+
+  /* Tints the source GIF to --color-secondary */
+  filter: brightness(0) saturate(100%) invert(22%) sepia(18%) saturate(995%)
+    hue-rotate(39deg) brightness(95%) contrast(90%);
 }
 
 .loader-footer {
@@ -254,11 +302,12 @@ textarea.form-input {
   left: 50%;
   transform: translateX(-50%);
 
-  font-family: var(--font-body);
+  margin: 0;
   font-size: 16px;
   color: var(--color-secondary);
 }
 
+/* Decorative background art */
 .loader-bg {
   position: absolute;
   inset: 0;
@@ -267,123 +316,74 @@ textarea.form-input {
 
 .decor {
   position: absolute;
+  bottom: 0;
   height: auto;
-  max-width: none; /* 👈 important */
+  max-width: none;
 }
 
 .decor-left {
-  position: absolute;
-  bottom: 0;
   left: -20px;
-
   width: clamp(140px, 28vw, 520px);
 }
 
 .decor-right {
-  position: absolute;
-  bottom: 0;
   right: -20px;
-
   width: clamp(140px, 24vw, 480px);
 }
 
-/* ===== STAGGER SETUP ===== */
-
+/* ---- Onboarding stagger ---- */
 #home-state > * {
   opacity: 0;
   transform: translateY(10px);
-  transition: all 0.9s cubic-bezier(.22, 1, .36, 1);
+  transition: opacity 0.9s var(--ease-out-soft), transform 0.9s var(--ease-out-soft);
 }
 
-/* Active state triggers animation */
 .home-active #home-state > * {
   opacity: 1;
   transform: translateY(0);
 }
 
 .home-active .home-subtext {
-  opacity: 1;
-  transform: translateY(0);
   transition-delay: 0.3s;
 }
 
-.home-active .home-form {
-  opacity: 1;
-  transform: translateY(0);
+.home-active #home-state .primary-btn {
   transition-delay: 0.5s;
 }
 
-.home-active .primary-btn {
-  opacity: 1;
-  transform: translateY(0);
-  transition-delay: 0.7s;
-}
-
-.home-active #main-title {
+.home-active:not(.header-mode) #main-title {
   transform: scale(0.75);
   margin-bottom: 8px;
 }
 
-
-
-
-
-
-
-
-
-
-
-#door-prompt {
-  position: fixed;
-  bottom: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px 20px;
-  background: rgba(0,0,0,0.6);
-  color: white;
-  border-radius: 8px;
-  font-size: 14px;
-  z-index: 20;
-  transition: opacity .3s ease;
-}
-
-#door-prompt.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* ================= NAVIGATION HINT ================= */
-
+/* ============================================================
+   NAVIGATION HINT
+   ============================================================ */
 #nav-hint {
   position: fixed;
   bottom: 1.25rem;
   left: 1.25rem;
+  z-index: 15;
 
-  display: none;
+  display: flex;
   align-items: center;
   gap: 0.75rem;
 
   padding: 0.6rem 0.8rem;
+  border: 1px solid var(--glass-border);
   border-radius: 0.75rem;
 
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--glass-panel);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--glass-shadow);
 
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-secondary);
 
-  z-index: 15;
-  pointer-events: none; /* 👈 never blocks interaction */
-
-
+  pointer-events: none;
 }
 
-/* Arrow key visuals */
 .nav-keys {
   display: grid;
   grid-template-columns: repeat(3, auto);
@@ -391,7 +391,8 @@ textarea.form-input {
   gap: 0.25rem;
 }
 
-.nav-keys .key {
+.nav-keys .key,
+.nav-audio .key {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -399,12 +400,13 @@ textarea.form-input {
   width: 24px;
   height: 24px;
 
+  border: 1px solid rgba(167, 72, 110, 0.35);
   border-radius: 0.4rem;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: var(--glass-field);
 
   font-size: 0.7rem;
   font-weight: 500;
+  color: var(--color-accent);
 }
 
 .nav-keys .key:nth-child(1) { grid-column: 2; } /* ↑ */
@@ -412,41 +414,109 @@ textarea.form-input {
 .nav-keys .key:nth-child(3) { grid-column: 2; } /* ↓ */
 .nav-keys .key:nth-child(4) { grid-column: 3; } /* → */
 
-.nav-text {
-  line-height: 1.3;
-  max-width: 140px;
+.nav-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
-/* ================= FADE OVERLAY ================= */
+.nav-text {
+  max-width: 140px;
+  line-height: 1.3;
+}
 
+/* ---- Mute hint ---- */
+.nav-audio {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  white-space: nowrap;
+
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--glass-divider);
+}
+
+.nav-audio .key {
+  width: auto;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  font-size: 0.65rem;
+}
+
+/* ============================================================
+   DOOR PROMPT
+   ============================================================ */
+#door-prompt {
+  position: fixed;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+
+  padding: 12px 20px;
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+
+  background: var(--glass-panel);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--glass-shadow);
+
+  font-size: 14px;
+  color: var(--color-primary);
+
+  transition: opacity 0.3s ease;
+}
+
+#door-prompt strong {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+#door-prompt.is-faded {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+   CINEMATIC OVERLAYS
+   ============================================================ */
+/* Sits above every other layer, including the end screen, so a fade to black
+   genuinely covers whatever is on screen. */
 #fade-overlay {
   position: fixed;
   inset: 0;
-  background: black;
+  z-index: 1000;
+
+  background: #000000;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 3s ease;
-  z-index: 20;
+  transition: opacity 2s ease;
 }
 
 #fade-overlay.active {
   opacity: 1;
 }
 
-/* ================= VIDEO OVERLAY ================= */
+/* Shorter fade for UI transitions, where 2s feels sluggish. */
+#fade-overlay.is-quick {
+  transition-duration: 0.8s;
+}
 
 #video-overlay {
   position: fixed;
   inset: 0;
-  background: black;
+  z-index: 25;
+
   display: flex;
   align-items: center;
   justify-content: center;
 
+  background: #000000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 2s ease;
-  z-index: 25;
 }
 
 #video-overlay.active {
@@ -460,206 +530,318 @@ textarea.form-input {
   object-fit: cover;
 }
 
-
-/* ================= QUESTION OVERLAY ================= */
-
+/* ============================================================
+   QUESTION OVERLAY
+   ============================================================ */
 #question-overlay {
-    z-index: 30;
-    opacity: 0;
-    pointer-events: none;
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.1);
-  }
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--glass-scrim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
 
 #question-overlay.active {
   opacity: 1;
   pointer-events: auto;
-  }
-
-
-  .question-box {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
-  padding: 2rem 1.75rem;
-  border-radius: 16px;
-  width: min(720px, 90vw);  
 }
 
+.question-box {
+  width: min(720px, 90vw);
+  padding: 2rem 1.75rem;
 
-  .question-box h2 {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: #ffffff;
-    text-align: center;
-    padding-bottom: 2rem;
-  }
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
 
-  #question-answer {
-    width: 100%;
-    min-height: 120px;
-    max-height: 500px;
-    padding: 0.75rem;
-    resize: none;
-    font-weight: 400;
-    font-size: 1rem;
-    color: #ffffff;
-    border-radius: 16px;
-    background:#ffffff1a;
-    border:1px solid hsl(0 0% 100% / .2);
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px);
-    box-sizing: border-box;
-  }
+  background: var(--glass-panel);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: var(--glass-shadow);
+}
 
-  #question-answer:focus {
-    outline: none;
-    border:1px solid hsl(0, 0%, 100%);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.37);
-  }
+/* Crossfade between questions. The card stays put and only its contents
+   swap, so the panel never appears to blink out. */
+#question-text,
+#question-answer {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
 
-  .question-actions {
-    margin-top: 0.75rem;
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-  }
+.question-box.is-swapping {
+  pointer-events: none;
+}
 
-  .question-actions button {
-    padding: 16px 16px;
-    border: none;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    color: #ffffff;
-    cursor: pointer;
-  }
+.question-box.is-swapping #question-text,
+.question-box.is-swapping #question-answer {
+  opacity: 0;
+  transform: translateY(-8px);
+}
 
-  #question-submit {
-    background:#ffffff1a;
-    border:1px solid hsl(0 0% 100% / .2);
-    backdrop-filter:blur(8px);
-    -webkit-backdrop-filter:blur(8px)
-  }
+.question-box h2 {
+  margin: 0;
+  padding-bottom: 1.5rem;
 
-/* ================= REFLECTION LOG ================= */
+  font-size: 1.35rem;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--color-primary);
+}
 
-  #reflection-log {
+#question-answer {
+  width: 100%;
+  min-height: 120px;
+  max-height: 500px;
+  padding: 0.85rem;
+  box-sizing: border-box;
+
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+
+  background: var(--glass-field);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--input-text);
+  resize: none;
+}
+
+#question-answer::placeholder {
+  color: rgba(41, 62, 109, 0.45);
+}
+
+#question-answer:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 2px rgba(167, 72, 110, 0.2);
+}
+
+.question-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.question-actions button {
+  padding: 12px 32px;
+
+  border: 1px solid rgba(167, 72, 110, 0.5);
+  border-radius: 8px;
+
+  background: rgba(167, 72, 110, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.question-actions button:hover {
+  background: var(--btn-primary-hover);
+}
+
+.question-actions button:active {
+  background: var(--btn-primary-active);
+  transform: scale(0.98);
+}
+
+/* ============================================================
+   REFLECTION LOG
+   ============================================================ */
+#reflection-log {
   position: fixed;
   top: 0;
   right: 0;
+  z-index: 15;
+
+  display: flex;
+  flex-direction: column;
+
   width: 320px;
   height: 100vh;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(10px);
-  color: #ffffff;
-  padding: 16px;
+  padding: 20px 16px;
   box-sizing: border-box;
-  z-index: 15;
-  display: none;
-  flex-direction: column;
+
+  border-left: 1px solid var(--glass-border);
+  background: var(--glass-panel-soft);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: var(--glass-shadow);
+
+  color: var(--color-primary);
 }
 
 #reflection-log h3 {
-  margin: 0 0 12px;
-  font-size: 16px;
+  margin: 0 0 16px;
+  font-size: 18px;
   font-weight: 600;
-  opacity: 0.9;
+  color: var(--color-primary);
 }
 
 #reflection-log-entries {
   flex: 1;
   overflow-y: auto;
   padding-right: 6px;
+  scrollbar-color: rgba(167, 72, 110, 0.5) transparent;
 }
 
 .log-entry {
   margin-bottom: 14px;
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.15);
+  border-bottom: 1px solid var(--glass-divider);
+}
+
+.log-entry:last-child {
+  border-bottom: none;
 }
 
 .log-question {
-  font-size: 13px;
-  opacity: 0.75;
   margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-secondary);
 }
 
 .log-answer {
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.45;
+  color: var(--color-primary);
 }
 
-/* ================= END SCREEN ================= */
-
+/* ============================================================
+   END SCREEN
+   ============================================================ */
 #end-screen {
   position: fixed;
   inset: 0;
-  background: #050505;
-  color: white;
+  z-index: 999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.end-container {
+  position: relative;
+  z-index: 1;
+
   display: flex;
   flex-direction: column;
-  padding: 40px;
-  overflow-y: auto;
-  z-index: 9999;
+  align-items: center;
+
+  width: min(920px, 90vw);
 }
 
-#end-screen.hidden {
-  display: none;
+.end-container .header-text {
+  margin-bottom: 20px;
 }
 
-#end-screen h1 {
+.end-topic-block {
+  margin-bottom: 20px;
   text-align: center;
-  margin-bottom: 24px;
+}
+
+.end-topic-label {
+  margin: 0 0 6px;
+
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  opacity: 0.7;
+}
+
+.end-topic {
+  max-width: 32ch;
+  margin: 0 auto;
+
+  font-family: var(--font-title);
+  font-size: clamp(20px, 2.4vw, 30px);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--color-accent);
+  overflow-wrap: break-word;
+}
+
+.end-subtext {
+  margin: 0 0 32px;
+  text-align: center;
+  color: var(--color-secondary);
+}
+
+.end-card {
+  width: 100%;
+  max-height: 55vh;
+  overflow-y: auto;
+
+  padding: 32px;
+  box-sizing: border-box;
+
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 24px;
+
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 .end-entry {
-  margin-bottom: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.end-entry:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .end-question {
-  font-weight: 600;
+  margin-bottom: 8px;
+  font-family: var(--font-title);
+  font-size: 18px;
+  color: var(--color-primary);
 }
 
 .end-answer {
-  opacity: 0.8;
+  font-family: var(--font-body);
+  line-height: 1.7;
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .end-actions {
-  margin-top: 40px;
   display: flex;
   gap: 16px;
-  justify-content: center;
+  margin-top: 32px;
 }
 
-.end-actions button {
-  padding: 12px 22px;
-  border-radius: 8px;
-  border: none;
-  background: #38bdf8;
-  color: #0b1120;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.end-actions button:hover {
-  opacity: 0.9;
-}
-
-.transition-out {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: all 0.4s ease;
-}
-
-.transition-in {
-  opacity: 1;
-  transform: translateY(0);
-  transition: all 0.6s cubic-bezier(.22, 1, .36, 1);
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
