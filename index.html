@@ -30,6 +30,10 @@
 
     --max: 78rem;
     --gutter: clamp(1.25rem, 4vw, 3rem);
+
+    /* Fixed height for every case-study row, so they're all identical
+       regardless of how much title/description/tag text each has. */
+    --project-h: clamp(220px, 26vw, 320px);
   }
 
   *, *::before, *::after { box-sizing: border-box; }
@@ -219,11 +223,15 @@
     border-top: var(--hair) solid var(--rule);
   }
 
+  /* Every case-study row is locked to the same height (--project-h),
+     regardless of how long its title/description/tags are, so the
+     grid of case studies reads as uniform rows. */
   .project {
     display: grid;
     grid-template-columns: 1fr;
     border-top: var(--hair) solid var(--rule);
     transition: background 0.15s;
+    min-height: var(--project-h);
   }
   .project:last-of-type { border-bottom: var(--hair) solid var(--rule); }
   .project:hover { background: var(--ink); color: var(--paper); }
@@ -236,13 +244,16 @@
     padding: 2.5rem 1.5rem;
     display: flex;
     gap: 1.5rem;
-    align-items: flex-start;
+    align-items: center;      /* vertically center text in the fixed-height row */
+    height: 100%;
+    overflow: hidden;         /* longer descriptions clip rather than grow the row */
   }
   .num {
     font-family: var(--f-display);
     font-weight: 500;
     font-size: 1rem;
     letter-spacing: 0.02em;
+    align-self: flex-start;
     padding-top: 0.15rem;
     min-width: 2.5rem;
   }
@@ -260,6 +271,12 @@
     font-size: 0.85rem;
     max-width: 52ch;
     margin: 0 0 1rem;
+    /* clamp to 2 lines so a long blurb never pushes the row taller
+       than the next one */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .p-tags { display: flex; flex-wrap: wrap; gap: 0; }
   .p-tags span {
@@ -276,6 +293,8 @@
     filter: grayscale(1) contrast(1.05);
     overflow: hidden;
     transition: filter 0.25s ease;
+    height: 100%;
+    min-height: var(--project-h);   /* fixed height on mobile stack too */
   }
   .p-media img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -291,7 +310,7 @@
     .hero-media img { object-fit: cover; height: 100%; }
 
     .project { grid-template-columns: 1.2fr 1fr; align-items: stretch; }
-    .p-media { border-left: var(--hair) solid var(--rule); }
+    .p-media { border-left: var(--hair) solid var(--rule); min-height: 0; }
     .project:hover .p-media { border-left-color: var(--paper); }
   }
 
@@ -353,6 +372,12 @@
     .section-head { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
     .p-body { flex-direction: row; }
     .foot-grid { align-items: flex-start; }
+
+    /* On mobile the row stacks (media on top, text below) rather than
+       side-by-side, so let the row grow to fit both instead of clipping. */
+    .project { min-height: 0; height: auto; }
+    .p-media { min-height: 220px; height: 220px; }
+    .p-body { height: auto; }
   }
 
   /* Focus visibility for the toggle label */
@@ -455,7 +480,7 @@
   <section id="projects">
     <div class="wrap">
       <div class="section-head">
-        <h2>Case Studies</h2>
+        <h2>Projects</h2>
       </div>
 
       <p class="group-label">UI / UX Design</p>
@@ -486,16 +511,16 @@
 
       <p class="group-label">Animation</p>
 
-      <a class="project" href="https://www.behance.net/gallery/243069939/Daikin-Motion-Design" target="_blank" rel="noopener noreferrer">
+      <a class="project" href="/kannagi">
         <div class="p-body">
           <span class="num">03</span>
           <div class="p-copy">
-            <h3 class="p-title">Daikin HVAC</h3>
-            <p class="p-desc">3D animated advertisements promoting a new line of HVAC systems.</p>
-            <div class="p-tags"><span>Unreal Engine</span><span>Blender</span><span>After Effects</span></div>
+            <h3 class="p-title">Kannagi</h3>
+            <p class="p-desc">An animated short film based on the Tamil epic, Silappadhikaaram.</p>
+            <div class="p-tags"><span>Unreal Engine</span><span>DaVinci Resolve</span><span>After Effects</span></div>
           </div>
         </div>
-        <div class="p-media"><img src="./index_files/daikinhero.jpg" alt="Daikin motion graphics"></div>
+        <div class="p-media"><img src="./index_files/kannagi-poster-Dr7gMJ0e.jpg" alt="Kannagi"></div>
       </a>
 
       <a class="project" href="https://www.behance.net/gallery/158692089/Breezer-Vivid-Shuffle-(2020)-Marketing-Creatives" target="_blank" rel="noopener noreferrer">
@@ -510,16 +535,16 @@
         <div class="p-media"><img src="./index_files/breezer-project-Ckb4MoFL.png" alt="Breezer Vivid Shuffle"></div>
       </a>
 
-      <a class="project" href="https://www.youtube.com/watch?v=Dk-9GllSbC4" target="_blank" rel="noopener noreferrer">
+      <a class="project" href="https://www.behance.net/gallery/243069939/Daikin-Motion-Design" target="_blank" rel="noopener noreferrer">
         <div class="p-body">
           <span class="num">05</span>
           <div class="p-copy">
-            <h3 class="p-title">Kannagi</h3>
-            <p class="p-desc">An animated short film based on the Tamil epic, Silappadhikaaram.</p>
-            <div class="p-tags"><span>Unreal Engine</span><span>DaVinci Resolve</span><span>After Effects</span></div>
+            <h3 class="p-title">Daikin HVAC</h3>
+            <p class="p-desc">3D animated advertisements promoting a new line of HVAC systems.</p>
+            <div class="p-tags"><span>Unreal Engine</span><span>Blender</span><span>After Effects</span></div>
           </div>
         </div>
-        <div class="p-media"><img src="./index_files/kannagi-poster-Dr7gMJ0e.jpg" alt="Kannagi"></div>
+        <div class="p-media"><img src="./index_files/daikinhero.jpg" alt="Daikin motion graphics"></div>
       </a>
 
       <a class="project" href="https://www.behance.net/gallery/157786309/Hibachi" target="_blank" rel="noopener noreferrer">
