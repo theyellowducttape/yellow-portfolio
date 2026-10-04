@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Thinking Generator — Room Review</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --font-title: "Bricolage Grotesque", sans-serif;
+      --font-body: "Work Sans", system-ui, sans-serif;
+
+      --color-primary: #293e6d;
+      --color-secondary: #3b4917;
+      --color-accent: #a7486e;
+      --color-surface: #f6f0dc;
+
+      --glass-panel: rgba(246, 240, 220, 0.82);
+      --glass-border: rgba(246, 240, 220, 0.55);
+      --glass-shadow: 0 8px 32px rgba(41, 62, 109, 0.25);
+
+      --transition: 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--color-surface);
+      color: var(--color-primary);
+      font-family: var(--font-body);
+    }
+
+    button { font: inherit; }
+
+    .page {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--color-surface);
+    }
+
+    /* Decorative forms inspired by the existing homepage. */
+    .shape {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0.8;
+      filter: blur(0.2px);
+    }
+
+    .shape.one {
+      width: 38vw;
+      height: 38vw;
+      min-width: 280px;
+      min-height: 280px;
+      left: -18vw;
+      bottom: -20vw;
+      border: 1px solid rgba(59, 73, 23, 0.18);
+      border-radius: 46% 54% 61% 39% / 41% 38% 62% 59%;
+      transform: rotate(24deg);
+    }
+
+    .shape.two {
+      width: 31vw;
+      height: 31vw;
+      min-width: 230px;
+      min-height: 230px;
+      right: -15vw;
+      bottom: -16vw;
+      border: 1px solid rgba(167, 72, 110, 0.18);
+      border-radius: 55% 45% 35% 65% / 48% 61% 39% 52%;
+      transform: rotate(-18deg);
+    }
+
+    .shape.three {
+      width: 18vw;
+      height: 18vw;
+      min-width: 140px;
+      min-height: 140px;
+      right: 7vw;
+      top: -10vw;
+      border: 1px solid rgba(41, 62, 109, 0.13);
+      border-radius: 50%;
+    }
+
+    .landing {
+      position: relative;
+      z-index: 1;
+      width: min(900px, 90vw);
+      text-align: center;
+      transition: opacity var(--transition), transform var(--transition);
+    }
+
+    .eyebrow {
+      margin: 0 0 14px;
+      color: var(--color-accent);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: clamp(48px, 7vw, 82px);
+      line-height: 0.98;
+      font-weight: 600;
+      color: var(--color-primary);
+      letter-spacing: -0.03em;
+    }
+
+    .intro {
+      max-width: 590px;
+      margin: 28px auto 44px;
+      color: var(--color-secondary);
+      font-size: clamp(16px, 2vw, 20px);
+      line-height: 1.45;
+    }
+
+    .rooms {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: min(720px, 100%);
+      margin: 0 auto;
+    }
+
+    .room-button {
+      position: relative;
+      min-height: 120px;
+      padding: 22px;
+      border: 1px solid rgba(167, 72, 110, 0.25);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.48);
+      color: var(--color-primary);
+      cursor: pointer;
+      text-align: left;
+      overflow: hidden;
+      transition:
+        transform 0.25s ease,
+        background 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .room-button::after {
+      content: "→";
+      position: absolute;
+      right: 20px;
+      bottom: 16px;
+      color: var(--color-accent);
+      font-size: 22px;
+      transition: transform 0.25s ease;
+    }
+
+    .room-button:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.78);
+      border-color: rgba(167, 72, 110, 0.55);
+      box-shadow: var(--glass-shadow);
+    }
+
+    .room-button:hover::after {
+      transform: translateX(5px);
+    }
+
+    .room-number {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--color-accent);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .room-name {
+      display: block;
+      font-family: var(--font-title);
+      font-size: 25px;
+      font-weight: 500;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--color-secondary);
+      font-size: 13px;
+      opacity: 0.75;
+      white-space: nowrap;
+    }
+
+    /* Viewer */
+    #viewer {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: #111;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition);
+    }
+
+    #viewer.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #canvas-container {
+      position: absolute;
+      inset: 0;
+    }
+
+    #canvas-container canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .viewer-top {
+      position: absolute;
+      z-index: 20;
+      top: 22px;
+      left: 22px;
+      right: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .viewer-title {
+      padding: 11px 16px;
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      background: var(--glass-panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--glass-shadow);
+      color: var(--color-primary);
+      font-family: var(--font-title);
+      font-size: 18px;
+    }
+
+    .close-button {
+      pointer-events: auto;
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--glass-border);
+      border-radius: 50%;
+      background: var(--glass-panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--glass-shadow);
+      color: var(--color-primary);
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .close-button:hover {
+      transform: scale(1.06);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .viewer-help {
+      position: absolute;
+      z-index: 20;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      padding: 10px 15px;
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      background: var(--glass-panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color: var(--color-secondary);
+      font-size: 12px;
+      box-shadow: var(--glass-shadow);
+      white-space: nowrap;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading {
+      position: absolute;
+      inset: 0;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-surface);
+      color: var(--color-primary);
+      font-family: var(--font-title);
+      font-size: 20px;
+      opacity: 1;
+      transition: opacity 0.35s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .error-message {
+      position: absolute;
+      z-index: 16;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(520px, 85vw);
+      padding: 28px;
+      border-radius: 18px;
+      background: var(--color-surface);
+      box-shadow: var(--glass-shadow);
+      color: var(--color-primary);
+      text-align: center;
+      display: none;
+    }
+
+    .error-message h2 {
+      margin: 0 0 10px;
+      font-family: var(--font-title);
+    }
+
+    .error-message p {
+      margin: 0;
+      color: var(--color-secondary);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 700px) {
+      .rooms {
+        grid-template-columns: 1fr;
+      }
+
+      .room-button {
+        min-height: 82px;
+      }
+
+      .room-button::after {
+        top: 50%;
+        bottom: auto;
+        transform: translateY(-50%);
+      }
+
+      .room-button:hover::after {
+        transform: translate(5px, -50%);
+      }
+
+      .intro {
+        margin-bottom: 28px;
+      }
+
+      .footer {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <div class="shape one"></div>
+    <div class="shape two"></div>
+    <div class="shape three"></div>
+
+    <section class="landing" id="landing">
+      <p class="eyebrow">The Thinking Generator</p>
+      <h1>Choose a room<br>to explore.</h1>
+      <p class="intro">
+        A preview of the three environments. Select a room to view the 3D space
+        and use the close button to return here and review another.
+      </p>
+
+      <div class="rooms">
+        <button class="room-button" data-room="Room 1" data-file="./rooms/room1.glb">
+          <span class="room-number">Environment 01</span>
+          <span class="room-name">Room 1</span>
+        </button>
+
+        <button class="room-button" data-room="Room 2" data-file="./rooms/room2.glb">
+          <span class="room-number">Environment 02</span>
+          <span class="room-name">Room 2</span>
+        </button>
+
+        <button class="room-button" data-room="Room 3" data-file="./rooms/room3.glb">
+          <span class="room-number">Environment 03</span>
+          <span class="room-name">Room 3</span>
+        </button>
+      </div>
+    </section>
+
+    <p class="footer">© 2026 Harbord &amp; Khan. All rights reserved.</p>
+  </main>
+
+  <section id="viewer" aria-hidden="true">
+    <div id="canvas-container"></div>
+
+    <div class="viewer-top">
+      <div class="viewer-title" id="viewer-title">Room 1</div>
+      <button class="close-button" id="close-button" aria-label="Close room viewer">×</button>
+    </div>
+
+    <div class="viewer-help" id="viewer-help">
+      Drag to look around · Scroll to zoom · Right-drag to pan
+    </div>
+
+    <div class="loading" id="loading">Loading room…</div>
+
+    <div class="error-message" id="error-message">
+      <h2>Room could not be loaded</h2>
+      <p id="error-text">
+        Make sure the GLB file is in the correct <strong>rooms</strong> folder.
+      </p>
+    </div>
+  </section>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const landing = document.getElementById("landing");
+    const viewer = document.getElementById("viewer");
+    const canvasContainer = document.getElementById("canvas-container");
+    const viewerTitle = document.getElementById("viewer-title");
+    const closeButton = document.getElementById("close-button");
+    const loading = document.getElementById("loading");
+    const errorMessage = document.getElementById("error-message");
+    const errorText = document.getElementById("error-text");
+    const viewerHelp = document.getElementById("viewer-help");
+
+    let scene, camera, renderer, controls;
+    let currentModel = null;
+    let animationFrame;
+
+    function initViewer() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xffffff);
+
+      camera = new THREE.PerspectiveCamera(
+        50,
+        window.innerWidth / window.innerHeight,
+        0.01,
+        1000
+      );
+      camera.position.set(4, 3, 6);
+
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: false,
+        powerPreference: "high-performance"
+      });
+
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.1;
+      canvasContainer.appendChild(renderer.domElement);
+
+      // Neutral studio lighting. If the GLB contains its own lights/material
+      // environment, those will still render normally.
+      const hemi = new THREE.HemisphereLight(0xfff7e8, 0x293e6d, 2.2);
+      scene.add(hemi);
+
+      const key = new THREE.DirectionalLight(0xffffff, 2.4);
+      key.position.set(5, 8, 5);
+      scene.add(key);
+
+      const fill = new THREE.DirectionalLight(0xa7486e, 0.7);
+      fill.position.set(-5, 3, -4);
+      scene.add(fill);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.minDistance = 0.1;
+      controls.maxDistance = 100;
+      controls.target.set(0, 1, 0);
+
+      window.addEventListener("resize", onResize);
+
+      animate();
+    }
+
+    function animate() {
+      animationFrame = requestAnimationFrame(animate);
+      controls?.update();
+      renderer?.render(scene, camera);
+    }
+
+    function onResize() {
+      if (!camera || !renderer) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function frameModel(model) {
+  const box = new THREE.Box3().setFromObject(model);
+
+  const center = box.getCenter(new THREE.Vector3());
+
+  // Camera height
+  const cameraHeight = box.min.y + 4;
+  const cameraBack = 10;
+
+  // Position camera at the horizontal center of the room
+  camera.position.set(
+    center.x,
+    cameraHeight,
+    center.z + cameraBack
+  );
+
+  // Look straight forward at the same height
+  controls.target.set(
+    center.x,
+    cameraHeight,
+    center.z - 5
+  );
+
+  controls.update();
+}
+
+    function disposeModel() {
+      if (!currentModel) return;
+
+      currentModel.traverse((object) => {
+        if (object.isMesh) {
+          object.geometry?.dispose();
+
+          if (Array.isArray(object.material)) {
+            object.material.forEach(material => material.dispose());
+          } else {
+            object.material?.dispose();
+          }
+        }
+      });
+
+      scene.remove(currentModel);
+      currentModel = null;
+    }
+
+    async function loadRoom(name, file) {
+      viewerTitle.textContent = name;
+      viewer.classList.add("active");
+      viewer.setAttribute("aria-hidden", "false");
+      landing.style.opacity = "0";
+      landing.style.pointerEvents = "none";
+
+      loading.classList.remove("hidden");
+      errorMessage.style.display = "none";
+      viewerHelp.style.opacity = "1";
+
+      disposeModel();
+
+      const loader = new GLTFLoader();
+
+      try {
+        const gltf = await loader.loadAsync(file);
+        currentModel = gltf.scene;
+        scene.add(currentModel);
+
+        // Enable shadows where supported.
+        currentModel.traverse((object) => {
+          if (object.isMesh) {
+            object.castShadow = true;
+            object.receiveShadow = true;
+          }
+        });
+
+        frameModel(currentModel);
+        loading.classList.add("hidden");
+
+        // Fade the help hint after a few seconds.
+        setTimeout(() => {
+          if (viewer.classList.contains("active")) {
+            viewerHelp.style.opacity = "0.35";
+          }
+        }, 5000);
+      } catch (error) {
+        console.error("Could not load room:", error);
+        loading.classList.add("hidden");
+        errorMessage.style.display = "block";
+        errorText.innerHTML =
+          `Could not load <strong>${file}</strong>.<br><br>` +
+          `Check that the file exists and that its filename matches the button configuration.`;
+      }
+    }
+
+    function closeViewer() {
+      viewer.classList.remove("active");
+      viewer.setAttribute("aria-hidden", "true");
+      landing.style.opacity = "1";
+      landing.style.pointerEvents = "auto";
+      viewerHelp.style.opacity = "1";
+      errorMessage.style.display = "none";
+      loading.classList.add("hidden");
+      disposeModel();
+    }
+
+    document.querySelectorAll(".room-button").forEach(button => {
+      button.addEventListener("click", () => {
+        loadRoom(button.dataset.room, button.dataset.file);
+      });
+    });
+
+    closeButton.addEventListener("click", closeViewer);
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && viewer.classList.contains("active")) {
+        closeViewer();
+      }
+    });
+
+    initViewer();
+  </script>
+</body>
+</html>
