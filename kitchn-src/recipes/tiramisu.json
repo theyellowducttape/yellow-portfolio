@@ -1,0 +1,28 @@
+{
+  "id": "tiramisu",
+  "title": "Tiramisu",
+  "tags": ["dessert", "italian", "no-bake", "coffee"],
+  "writtenIn": "metric",
+  "ingredients": [
+    { "id": "espresso", "name": "espresso", "us": { "amount": 1, "unit": "cup" }, "metric": { "amount": 240, "unit": "ml" }, "estimate": "metric", "illustration": "espresso" },
+    { "id": "sugar-coffee", "name": "sugar", "us": { "amount": 4, "unit": "tbsp" }, "metric": { "amount": 50, "unit": "g" }, "estimate": "metric", "illustration": "sugar" },
+    { "id": "yolks", "name": "egg yolk", "plural": "egg yolks", "count": { "amount": 3, "unit": "" }, "illustration": "egg" },
+    { "id": "sugar-yolks", "name": "sugar", "metric": { "amount": 100, "unit": "g" }, "us": { "amount": 0.5, "unit": "cup" }, "estimate": "us", "illustration": "sugar" },
+    { "id": "vanilla", "name": "vanilla extract", "us": { "amount": 1, "unit": "tsp" }, "metric": { "amount": 5, "unit": "ml" }, "illustration": "vanilla" },
+    { "id": "whites", "name": "egg white", "plural": "egg whites", "note": "or 1 cup whipping cream", "count": { "amount": 3, "unit": "" }, "illustration": "egg" },
+    { "id": "mascarpone", "name": "mascarpone", "metric": { "amount": 200, "unit": "g" }, "illustration": "mascarpone" },
+    { "id": "ladyfingers", "name": "ladyfingers", "amountText": "enough", "note": "for 2 layers", "illustration": "ladyfinger" },
+    { "id": "cocoa", "name": "cocoa powder", "amountText": "a dusting of", "illustration": "cocoa" }
+  ],
+  "operations": [
+    { "id": "sweeten-coffee", "label": "stir", "text": "Stir the sugar into the espresso.", "inputs": ["espresso", "sugar-coffee"] },
+    { "id": "whip-yolks", "label": "whip on a double boiler", "text": "Whip the sugar, egg yolks and vanilla on a double boiler.", "inputs": ["yolks", "sugar-yolks", "vanilla"] },
+    { "id": "whip-whites", "label": "whip", "text": "Whip the egg whites (or the whipping cream).", "inputs": ["whites"] },
+    { "id": "mix-mascarpone", "label": "mix", "text": "Mix the whipped egg whites (or cream) with the mascarpone.", "inputs": ["whip-whites", "mascarpone"] },
+    { "id": "mix-cream", "label": "mix together", "text": "Mix the whipped yolks and the mascarpone mixture together.", "inputs": ["whip-yolks", "mix-mascarpone"] },
+    { "id": "dip", "label": "dip", "text": "Dip the ladyfingers in the sweetened coffee.", "inputs": ["ladyfingers", "sweeten-coffee"] },
+    { "id": "layer", "label": "layer twice", "text": "Layer the dipped ladyfingers and the cream in a dish, twice over.", "inputs": ["dip", "mix-cream"] },
+    { "id": "dust", "label": "dust", "text": "Dust the top with cocoa.", "inputs": ["layer", "cocoa"] },
+    { "id": "chill", "label": "chill overnight", "text": "Chill overnight.", "inputs": ["dust"] }
+  ]
+}
